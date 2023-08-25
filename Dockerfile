@@ -1,5 +1,7 @@
-# Build: docker build -t tester .
-# Run: docker run -d -p 8080:8080 -p 60401:60401 -p 3002:3002 tester
+# Build for all platforms (note that you might want to build only for your platform):
+  #docker buildx create --use
+  #docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t bitcoinerlab/tester .
+# Run: docker run -d -p 8080:8080 -p 60401:60401 -p 3002:3002 bitcoinerlab/tester
 
 # This Dockerfile is a fork from:
 # https://github.com/bitcoinjs/regtest-server/tree/master/docker
@@ -7,6 +9,9 @@
 
 FROM ubuntu:18.04
 LABEL maintainer="José Luis Landabaso @bitcoinerlab"
+
+ARG TARGETPLATFORM
+RUN echo "TARGETPLATFORM: ${TARGETPLATFORM}"
 
 RUN apt update && apt install -y software-properties-common
 
@@ -24,18 +29,22 @@ RUN apt update && \
 
 WORKDIR /root
 
-COPY achow.asc ./
+RUN wget "https://bitcoincore.org/bin/bitcoin-core-25.0/SHA256SUMS" && \
+    wget "https://bitcoincore.org/bin/bitcoin-core-25.0/SHA256SUMS.asc"
 
-RUN gpg --import achow.asc && \
-  wget https://bitcoincore.org/bin/bitcoin-core-22.0/SHA256SUMS && \
-  wget https://bitcoincore.org/bin/bitcoin-core-22.0/SHA256SUMS.asc && \
-  wget https://bitcoincore.org/bin/bitcoin-core-22.0/bitcoin-22.0-x86_64-linux-gnu.tar.gz && \
+RUN ARCH="unsupported"; \
+  case "$TARGETPLATFORM" in \
+  "linux/amd64") ARCH="x86_64-linux-gnu" ;; \
+  "linux/arm64") ARCH="aarch64-linux-gnu" ;; \
+  "linux/arm/v7") ARCH="arm-linux-gnueabihf" ;; \
+  *) echo "Unsupported platform: $TARGETPLATFORM" && exit 1 ;; \
+  esac && \
+  wget "https://bitcoincore.org/bin/bitcoin-core-25.0/bitcoin-25.0-${ARCH}.tar.gz" && \
   sha256sum --ignore-missing --check SHA256SUMS && \
-  (gpg --verify SHA256SUMS.asc 2>&1 | grep "Good signature from \"Andrew Chow" || exit 1) && \
-  tar xvf bitcoin-22.0-x86_64-linux-gnu.tar.gz && \
-  rm -f bitcoin-22.0-x86_64-linux-gnu.tar.gz SHA256SUM* achow.asc && \
-  cp -R bitcoin-22.0/* /usr/ && \
-  rm -rf bitcoin-22.0/
+  tar xvf "bitcoin-25.0-${ARCH}.tar.gz" && \
+  rm -f "bitcoin-25.0-${ARCH}.tar.gz" SHA256SUM* && \
+  cp -R bitcoin-25.0/* /usr/ && \
+  rm -rf bitcoin-25.0/
 
 RUN apt install -y \
   git \
