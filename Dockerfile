@@ -1,11 +1,38 @@
-# Build for all platforms (note that you might want to build only for your platform):
-  #docker buildx create --use
-  #docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t bitcoinerlab/tester .
-# Run: docker run -d -p 8080:8080 -p 60401:60401 -p 3002:3002 bitcoinerlab/tester
+# -------------------------------------------------------
+# Dockerfile for bitcoinerlab/tester
+# -------------------------------------------------------
 
-# This Dockerfile is a fork from:
+# Description:
+# This Dockerfile sets up an environment based on a fork from:
 # https://github.com/bitcoinjs/regtest-server/tree/master/docker
-# All credit should go to Jonathan Underwood.
+# 
+# Main Changes:
+# 1. Installation and execution of Blockstream's electrs server.
+# 2. Esplora backend running on port 3002.
+# 3. Electrum server running on port 60401.
+# 4. Bitcoin Core set to v25.
+
+# Quick Guide:
+# 1. Building a Local Image:
+#    $ docker build -t bitcoinerlab/tester .
+#
+# 2. Building for Multiple Platforms & Uploading to Docker Hub:
+#    a. Login to Docker Hub:
+#       $ docker login -u bitcoinerlab
+#
+#    b. Set up for multi-platform builds:
+#       $ docker buildx create --use
+#
+#    c. Build & Push to Docker Hub:
+#       $ docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t bitcoinerlab/tester . --push
+#
+# 3. Running the Image:
+#    $ docker run -d -p 8080:8080 -p 60401:60401 -p 3002:3002 bitcoinerlab/tester
+
+# -------------------------------------------------------
+# Credit for the original work goes to Jonathan Underwood.
+# -------------------------------------------------------
+
 
 FROM ubuntu:18.04
 LABEL maintainer="José Luis Landabaso @bitcoinerlab"
