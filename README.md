@@ -33,6 +33,12 @@ with the following command:
 docker run -d -p 8080:8080 -p 60401:60401 -p 3002:3002 tester
 ```
 
+## Multi-Platform Build and Push to Docker Hub
+
+docker buildx create --name mybuilder --bootstrap --use
+docker login
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t bitcoinerlab/tester:latest --push .
+
 ## Credits
 
 This testing environment is a fork of
