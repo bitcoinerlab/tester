@@ -18,5 +18,7 @@ export RPCCONCURRENT=32
 export RPC=http://localhost:18443
 export PORT=8080
 
-node /root/regtest-server/index.js
+DEBUG=* node /root/regtest-server/index.js &
+
+(cd /root/esplora && PORT=5000 npm run dev-server)
 
