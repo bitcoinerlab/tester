@@ -36,15 +36,18 @@ docker run -d -p 8080:8080 -p 60401:60401 -p 3002:3002 -p 5000:5000 tester
 
 ## Multi-Platform Build and Push to Docker Hub
 
+```bash
 docker buildx create --name mybuilder --bootstrap --use
 docker login
 
 docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t bitcoinerlab/tester . --push
 
-# if building v7 fails (the OS may kill the compilation process for being too high),
-# then discard it:
-docker buildx build --platform linux/amd64,linux/arm64 -t bitcoinerlab/tester:latest --push .
+# if building v7 fails (the OS may kill the compilation process for being too high)
 
+# then discard it
+
+docker buildx build --platform linux/amd64,linux/arm64 -t bitcoinerlab/tester:latest --push .
+```
 
 ## Credits
 
